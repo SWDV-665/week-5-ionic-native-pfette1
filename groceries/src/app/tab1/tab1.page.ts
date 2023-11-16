@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { GroceriesService } from '../../providers/groceries.service';
 import { InputDialogService } from '../../providers/input-dialog.service';
+import { SocialSharing } from '@ionic-native/social-sharing/ngx'
 
 @Component({
   selector: 'app-tab1',
@@ -42,7 +43,8 @@ export class Tab1Page {
   constructor(
     private toastController: ToastController,
     public dataService: GroceriesService,
-    public inputDialogService: InputDialogService) { }
+    public inputDialogService: InputDialogService,
+    public socialSharingService: SocialSharing) { }
 
   loadItems() {
     return this.dataService.getItems();
@@ -59,6 +61,26 @@ export class Tab1Page {
     await toast.present();
 
     this.dataService.removeItem(index);
+  }
+
+  async shareItem(item: any, index: number) {
+    const toast = await this.toastController.create({
+      message: 'Sharing item',
+      duration: 1500,
+      position: 'bottom',
+      color: 'success',
+    });
+
+    await toast.present();
+
+    let message = "Grocery Item - Name : " + item.name + " - Quantity: " + item.quantity;
+    let subject = "Shared via Groceries app";
+
+    this.socialSharingService.share(message, subject).then(() => {
+      console.log("Shared Successfully");
+    }).catch((error) => {
+      console.error("Error while sharing", error);
+    })
   }
 
   async addItem() {
